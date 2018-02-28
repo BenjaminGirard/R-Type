@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.8)
+project(cpp_rtype)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/R-type/client)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/R-type/server)
+#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/R-type/server/DynamicLibraryAPI)

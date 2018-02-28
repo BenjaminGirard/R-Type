@@ -1,0 +1,616 @@
+ 
+
+
+
+Network Working Group                                         Y. N Goala
+Request For Comments: 4242                                R-Type Epitech
+Category: Informational                                     January 2018
+
+
+                     Binary protocol used in R-Type
+
+
+Abstract
+
+   This document describes how does the binary protocol is used in the
+   R-Type Project. For this project, we used the Transmission Control
+   Protocol (TCP) to get the menu informations, and the User Datagram
+   Protocol (UDP) to get every communications in the game.
+
+
+Status of this Memo
+
+   This memo provides information for the Internet community. This memo 
+    does not specify an Internet standard of any kind. Distribution of
+   this memo is unlimited.
+
+Copyright and License Notice
+
+   Copyright (C) Studio Solid (2018). All Rights Reserved.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+Y. N Goala                    Studio Solid                      [Page 1]
+
+R-Type                        Informations                  January 2018
+
+
+Table of Contents
+
+   1  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . .  3
+     1.1  Terminology . . . . . . . . . . . . . . . . . . . . . . . .  3
+   2.  TCP Protocol . . . . . . . . . . . . . . . . . . . . . . . . .  3
+     2.1 Description of TCP Packets . . . . . . . . . . . . . . . . .  3
+       2.1.1 Common Header  . . . . . . . . . . . . . . . . . . . . .  3
+       2.1.1 User Id Packet . . . . . . . . . . . . . . . . . . . . .  3
+       2.1.3 Authentification Packet  . . . . . . . . . . . . . . . .  3
+       2.1.4 Create Room Packet . . . . . . . . . . . . . . . . . . .  5
+       2.1.5 Ask List Room Packet . . . . . . . . . . . . . . . . . .  6
+       2.1.6 Room Info Packet . . . . . . . . . . . . . . . . . . . .  6
+       2.1.7 Ask Join Room Packet . . . . . . . . . . . . . . . . . .  7
+       2.1.8 Leave Room Packet  . . . . . . . . . . . . . . . . . . .  7
+     2.2 Sequencing of TCP requests and replies . . . . . . . . . . .  8
+   3  UDP Protocol  . . . . . . . . . . . . . . . . . . . . . . . . .  9
+     3.1 Description of UDP Packets . . . . . . . . . . . . . . . . .  9
+       3.1.1 Common Header  . . . . . . . . . . . . . . . . . . . . .  9
+       3.1.2 User Input Packet  . . . . . . . . . . . . . . . . . . .  9
+       3.1.3 Add Element Packet . . . . . . . . . . . . . . . . . . .  9
+       3.1.4 Update Element Packet  . . . . . . . . . . . . . . . . . 10
+       3.1.5 Delete Element Packet  . . . . . . . . . . . . . . . . . 10
+       3.1.6 Change Game Status Packet  . . . . . . . . . . . . . . . 11
+   4 Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . . . 11
+   5 Author's Address . . . . . . . . . . . . . . . . . . . . . . . . 11
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+Y. N Goala                    Studio Solid                      [Page 2]
+
+R-Type                        Informations                  January 2018
+
+
+1  Introduction
+
+   This document describes the communication between the two parts of
+   this project : the client and the server. 
+
+1.1  Terminology
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119 [RFC2119].
+
+2.  TCP Protocol
+
+   The TCP protocol is used in the menu to avoid data loses.
+
+2.1 Description of TCP Packets
+
+   The following packets MUST be implemented as described. All strings
+   are null terminated and fix-sized in this protocol. Each packet MUST
+   be preceded by a common header.
+
+2.1.1 Common Header
+
+   The common header is composed of a uint8_t.
+
+         - - - - - - - - - - - - - - - 
+        |   uint8_t   |  PACKET_TYPE  |
+         - - - - - - - - - - - - - - - 
+
+2.1.1 User Id Packet
+
+        Server :
+
+        This packet MUST be sent by the server when the client just
+        connect.
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     PACKET TYPE          |                     USER_ID (value = 1) 	                   |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     uint64_t             |                          User Id	  	                       |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+2.1.3 Authentification Packet
+
+        Client : 
+
+        This packet MUST be sent when the client want to authentificate.
+ 
+
+
+Y. N Goala                    Studio Solid                      [Page 3]
+
+R-Type                        Informations                  January 2018
+
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     PACKET TYPE        |                AUTHENTIFICATION_REQUEST (value = 1)             |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     char[256]          |                           username                              |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+        Server :
+
+        This packet MUST be sent in response of the client
+        Authentification Packet, to authorize or not the client
+        authentification.
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |       PACKET TYPE        |             AUTHENTIFICATION_REQUEST (value = 1)             |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |         uint8_t          |               AUTHORIZATION    (value = 0 or 1)              |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+Y. N Goala                    Studio Solid                      [Page 4]
+
+R-Type                        Informations                  January 2018
+
+
+2.1.4 Create Room Packet
+
+        Client : 
+
+        This packet MUST be sent to ask to create a room.
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     PACKET TYPE     |                  USER_CREATE_ROOM_REQUEST (value = 2)                |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     uint8_t         |                            roomSize                                  |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   char[256]         |                            password                                  |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        Server :
+
+        This packet MUST be sent in response to the client Create Room
+        Packet to authorize or not a client to create a room.
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     PACKET TYPE     |                    USER_CREATE_ROOM_REQUEST (value = 2) 	           |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint8_t      |                       AUTHORIZATION (value = 0 or 1)  	               |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint64_t     |                                    roomId                    	       |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint8_t      |                      GAME_IN_PROGRESS (value =0 or 1)       	       |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint8_t      |                                  nbPlayersMax 	     	               |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint8_t      |                                nbPlayersInRoom          	           |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint64_t     |         	                  PlayerId	      	                       |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |       char[256]     |                                   UserName	     	                   |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint8_t      |                       PLAYER_READY (value =0 or 1)      	           |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+Y. N Goala                    Studio Solid                      [Page 5]
+
+R-Type                        Informations                  January 2018
+
+
+2.1.5 Ask List Room Packet
+
+        Client : 
+
+        This message MUST be sent when the client to list the current
+        games on the server (even full ones).
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     PACKET TYPE     |                 USER_ASK_LIST_ROOM_REQUEST (value = 3)                   |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+        Server :
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     PACKET TYPE     |                 USER_ASK_LIST_ROOM_REQUEST (value = 3)                   |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |       uint8_t       |                          BEGIN  / END                                    |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+2.1.6 Room Info Packet
+
+        Server :
+
+        This packet MUST be sent to give room informations.
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     PACKET TYPE     |                         ROOM_INFO (value = 4)               	       |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |        uint64_t     |                                roomId         	                       |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint8_t      |         	   GAME_IN_PROGRESS (value =0 or 1)      	               |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint8_t      |                              nbPlayersMax 	     	                   |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint8_t      |                            nbPlayersInRoom   			               |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint64_t     |         	              PlayerId	      	 	  	                   |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |       char[256]     |                               UserName	     		                   |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |        uint8_t      |            	     PLAYER_READY (value =0 or 1)      	                   |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+
+
+
+ 
+
+
+Y. N Goala                    Studio Solid                      [Page 6]
+
+R-Type                        Informations                  January 2018
+
+
+2.1.7 Ask Join Room Packet
+
+        Client :
+
+        This packet MUST be sent when a client need to join a room.
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |      PACKET TYPE      |  		  USER_ASK_JOIN_ROOM_REQUEST (value = 5)                         |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |        uint64_t       |                            roomId	                                     |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |       char[256]       |                           password	                                 |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        Server :
+
+        This packet MUST be sent in response of the client Ask Join Room Packet,
+        to authorize him or not to join the room.
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     PACKET TYPE     |  		USER_ASK_JOIN_ROOM_REQUEST (value = 5)                           |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |        uint8_t      |            	     AUTHORIZATION (value = 0 or 1)                          |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+2.1.8 Leave Room Packet
+
+        Client :
+
+        This packet MUST be sent when the client want to leave the room.
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |     PACKET TYPE     |                    USER_LEAVE_ROOM (value = 6)           		         |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+Y. N Goala                    Studio Solid                      [Page 7]
+
+R-Type                        Informations                  January 2018
+
+
+2.2 Sequencing of TCP requests and replies
+
+                      Client                                                      Server
+                          |                                                         |
+                          |                     Connection to server         	    |
+                          | >>---------------------------------------------------->>|
+                          |                                                         |
+                          |                         Send User Id                    |
+                          | <<----------------------------------------------------<<|
+                          |                                                         |
+                          |           	     Send User Authentification	            |
+                          | >>---------------------------------------------------->>|
+                          |                                                         |
+                          |                      Send Authorization	                |
+                          | <<----------------------------------------------------<<|
+                          |                                                         |
+                          |                      Send Ask Room List           	    |
+                          | >>---------------------------------------------------->>|
+                          |                                                         |
+                          |                        Send Room List 	   	            |
+                          | <<----------------------------------------------------<<|
+                          |                                                         |
+                          |        	          Send Create Room	                    |
+	                      | >>---------------------------------------------------->>|
+                          |                                                         |
+                          |        	            Authorization	                    |
+                          | <<----------------------------------------------------<<|
+                          |                                                         |
+                          |                          Leave Room          	        |
+                          | >>---------------------------------------------------->>|
+                          |                                                         |
+                          |        	            Authorization             	        |
+                          | <<----------------------------------------------------<<|
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+Y. N Goala                    Studio Solid                      [Page 8]
+
+R-Type                        Informations                  January 2018
+
+
+3  UDP Protocol
+
+        The UDP protocol is used in the game.
+
+3.1 Description of UDP Packets
+
+          The following packets MUST be implemented as described.
+          All strings are null terminated in this protocol.
+          Each packet is preceded by a common header.
+
+3.1.1 Common Header
+
+        The common header is composed of a uint8_t.
+         - - - - - - - - - - - - - - - 
+        |   uint8_t   |  PACKET_TYPE  |
+         - - - - - - - - - - - - - - - 
+
+3.1.2 User Input Packet
+
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint8_t   |         USER_INPUT (value  =0)          |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint64_t  |               User_Id   	            |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint8_t   |              User_Input  	            |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        This packet MUST be sent when a input is pressed (UP, DOWN,
+        LEFT, RIGHT...). This packet MUST be sent to every players in
+        the room.
+
+3.1.3 Add Element Packet
+
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |   uint8_t   |          ADD_ELEMENT (value  =1)          |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint64_t  |                Element_Id   	          |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |  char[256]  |                  path  	                  |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |  uint16_t   |  	         x_pos 	                      |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint16_t  |                  y_pos   	              |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        |   uint16_t  |  	         size_x 	                  |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint16_t  |             	 size_y   	              |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+ 
+
+
+Y. N Goala                    Studio Solid                      [Page 9]
+
+R-Type                        Informations                  January 2018
+
+
+        |   uint8_t  |                is_player	                  |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint16_t |             	level   	                  |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint8_t  |                 nbLives   	              |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        This packet MUST be sent to all room's players to add an element
+        on the map. The level and the nbLives are OPTIONNAL if is_player
+        is false.
+
+3.1.4 Update Element Packet
+
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint8_t   |           UPDATE_ELEMENT (value = 2)            |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint64_t  |                Element_Id   	 	            |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |  uint16_t   |  	          x_pos 	                    	|
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint16_t  |                   y_pos   	            	    |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint16_t  |  	          size_x 	            	        |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint16_t  |             	  size_y   	                	|
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint8_t   |                  is_player	                	|
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint16_t  |             	  level   	                	|
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint8_t   |                   nbLives   	            	|
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        This packet MUST be sent to all room's players to update an element on the map.
+        The level and the nbLives are OPTIONNAL if is_player is false.
+
+3.1.5 Delete Element Packet
+
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint8_t  |           DELETE_ELEMENT (value  =3)            |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint64_t |                  Element_Id   	               |
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        This command MUST be sent to delete an element of the map.
+
+
+
+ 
+
+
+Y. N Goala                    Studio Solid                     [Page 10]
+
+R-Type                        Informations                  January 2018
+
+
+3.1.6 Change Game Status Packet 
+
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint8_t |                CHANGE_GAME_STATUS (value  =4)               |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        |   uint8_t |                      game_status    	                      |
+         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        This message MUST be sent when the game's status is
+        changing(Playing, Pause, Game Over).
+
+
+4 Acknowledgments
+
+        This RFC is based on the work of the following people :
+
+        - Benjamin Girard, Project Leader
+        - Matteo Margueritte
+        - Nicolas Dejean
+        - Sebastien Vidal
+        - Thibaut Jacquart
+        - Ugo Pereira
+        - Yohann N'Goala
+
+5 Author's Address
+
+        Yohann N'Goala
+        24, rue Pasteur
+        94 270 Le Kremlin Bicetre
+
+        Phone: O7 83 87 O9 9O
+        Email: yohann.n-goala@epitech.eu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Y. N Goala                    Studio Solid                     [Page 11]

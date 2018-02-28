@@ -1,0 +1,6 @@
+*
+!.gitignore
+!libcryptoMD.dll
+!libcryptoMDd.dll
+!libsslMDd.dll
+!libsslMD.dll

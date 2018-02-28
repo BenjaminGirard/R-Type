@@ -1,0 +1,73 @@
+@startuml
+
+note "Sptr stand for std::shared_ptr" as N0
+note "Manager is our game engine (see SolidEngine UML)" as N1
+
+together {
+class INetwork
+class PacketHandler
+class IPlayer
+}
+
+interface IPlayer {
+
+.. Getters ..
++ virtual uint64_t getId() const = 0
++ virtual void sendData(UdpPackage<T> &package)
++ virtual std::list<UdpPackage<T>> &receiveData(void)
+}
+
+interface INetwork {
++ virtual void startNetwork(std::list<Sptr<IPlayer>> &, std::mutex &) = 0
+}
+
+class Session {
+}
+
+class PacketHandler {
+- std::list<Sptr<IPlayer>> &_players
+- RoomManager _roomManager
++ void startPollingPackets(void)
+- TcpPackage<T> *createPackage(uint8_t, T data)
+- void createRoom(UdpPackage<T> data)
+- void roomInfo(UdpPackage<T> data)
+- void askJoinRoom(UdpPackage<T> data)
+- void leaveRoom(UdpPackage<T> data)
+- void createRoom(UdpPackage<T> data)
+}
+
+class RoomManager {
+- std::vector<Room> _rooms
+}
+
+class Core {
+- std::list<Sptr<IPlayer>> _players
+- Uptr<INetwork> _network
+- Manager _manager
+- std::mutex _serverMutex
+__ Methods __
++ void startServer()
+}
+
+class Network {
+- std::list<Sptr<IPlayer>> &_players
+__ Methods __
++ void startNetwork(std::list<Sptr<IPlayer>> &player, std::mutex &serverMutex)
+}
+
+class Room {
+- std::list<Sptr<IPlayer>> _players
+- Manager _manager
+}
+note right : Each room will be treated by a thread
+
+IPlayer <|-- Session
+INetwork <|-- Network
+
+Core "1" *-- PacketHandler
+Core "1" *-- INetwork
+PacketHandler "1" *-- RoomManager
+RoomManager "0..*" *-- Room
+Core "0..*" *-- IPlayer
+
+@enduml

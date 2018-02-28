@@ -1,0 +1,114 @@
+@startuml
+
+note as N1
+<color:blue>Sptr</color> is a typedef for std::shared_ptr.
+<color:blue>Uptr</color> is a typedef for std::unique_ptr.
+end note
+
+together {
+class EntityManager
+class Mediator
+class SystemManager
+}
+
+together {
+class ASystem
+class AEntity
+}
+
+class Manager {
+- EntityManager _em
+- SystemManager _sm
+- Sptr<Mediator> _mediator
+__ Methods __
++ AEntity &addEntity()
++ void removeEntity(const Sptr<AEntity> &entity)
++ T &addSytem<T>()
++ void addComponent(AEntity &entity)
++ void removeComponent(AEntity &entity)
++ void executeSystems()
+}
+
+abstract class ASystem {
+# std::vector<Sptr<AEntity>> _entityVec
+# std::vector<std::type_index> _requiredComp
+# const uint64_t _id;
+# Sptr<Mediator> _mediator
+__ Methods __
++ virtual void execute() = 0
++ void addEntity(const Sptr<AEntity> &entity)
++ void delEntity(const Sptr<AEntity> &entity)
++ bool hasEntity(const Sptr<AEntity> &entity)
+.. Getters ..
++ const std::vector<Sptr<AEntity>> &getEntityVec() const
++ const std::vector<std::type_index> &getRequiredComp() const
++ const std::vector<std::type_index> &getSortedRequiredComp()
++ const uint64_t &getId() const
+}
+
+abstract class AEntity {
+# std::unordered_map<std::type_index, Sptr<AComponent>> _compMap
+# std::vector<std::type_index> _compTypes
+# const uint64_t _id
+# Sptr<Mediator> _mediator
+__ Methods __
++ T &getComp<T>()
++ T &addComp<T>()
++ T &addComp<T, ...Args>(Args && ...args)
++ void delComp<T>()
+- void addComponent()
+- void removeComponent()
+- T &addComp<T>(Uptr<T> &&component)
+.. Getters ..
++ const auto &getCompMap() const
++ const std::vector<std::type_index> &getCompTypes() const
++ const std::vector<std::type_index>  &getSortedCompTypes()
++ uint64_t getId() const
+}
+
+class Component {
+# const std::type_index _typeIndex
+__ Methods __
+.. Getters ..
++ const std::type_index &getTypeIndex() const
+}
+
+class EntityManager {
+- std::unordered_map<uint64_t, Sptr<AEntity>> _entities
+__ Methods __
++ void addEntity(const Sptr<AEntity> &entity)
++ void removeEntity(const uint64_t id)
++ auto getEligibleEntities(const std::vector<std::type_index> &sortedRequirements)
+}
+
+class SystemManager {
+- std::unordered_map<uint64_t, Sptr<ASystem>> _sytems
+__ Methods __
++ void addSystem(const Sptr<ASystem> &sys)
++ void removeSystem(const Sptr<ASystem> &sys)
++ void addEntityToAppropriateSystems(const Sptr<AEntity> &entity)
++ void removeEntityToAppropriateSystems(const Sptr<AEntity> &entity)
++ void removeEntityToAllSystems(const Sptr<AEntity> &entity)
+.. Getters ..
++ const auto &getSystems() const
+}
+
+class Mediator {
+- Manager *_manager
+__ Methods __
++ void pingDeleteEntity(Sptr<AEntity> &entity)
++ void pingCreateEntity()
++ void pingDeleteComponent(AEntity &entity)
++ void pingCreateComponent(AEntity &entity)
+}
+
+ASystem "1" *-- Mediator
+AEntity "1" *-- Mediator
+Manager "1" *-- Mediator
+Manager "1" *-- EntityManager
+Manager "1" *-- SystemManager
+SystemManager "0..*" *-- "map<ASystem>" ASystem
+EntityManager "0..*" *-- "map<AEntity>" AEntity
+AEntity "0..*" *-- "map<AComponent>" Component
+
+@enduml
